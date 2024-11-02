@@ -1,10 +1,8 @@
 package org.example;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-public class App extends JFrame {
+public class AutoKeyCipherGUI extends JFrame {
     private final JTextField alphabetField;
     private final JTextField keyField;
     private final JTextArea inputTextArea;
@@ -12,7 +10,7 @@ public class App extends JFrame {
     private JButton decryptButton;
     private final JComboBox<String> cipherTypeComboBox;
 
-    public App() {
+    public AutoKeyCipherGUI() {
         setTitle("Шифр з автоключем");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -114,7 +112,7 @@ public class App extends JFrame {
     }
 
     public static void main(String[] args) {
-        App gui = new App();
+        AutoKeyCipherGUI gui = new AutoKeyCipherGUI();
         gui.setVisible(true);
     }
 }
