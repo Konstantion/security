@@ -1,13 +1,19 @@
 package org.example;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import java.util.Objects;
 
 public class AutoKeyCipherGUI extends JFrame {
     private final JTextField alphabetField;
     private final JTextField keyField;
     private final JTextArea inputTextArea;
     private final JTextArea outputTextArea;
-    private JButton decryptButton;
     private final JComboBox<String> cipherTypeComboBox;
 
     public AutoKeyCipherGUI() {
@@ -70,7 +76,7 @@ public class AutoKeyCipherGUI extends JFrame {
             String inputText = inputTextArea.getText();
             String result = "";
 
-            if (cipherTypeComboBox.getSelectedItem().equals("Шифрування")) {
+            if (Objects.equals(cipherTypeComboBox.getSelectedItem(), "Шифрування")) {
                 result = encrypt(inputText, key, alphabet);
             } else {
                 result = decrypt(inputText, key, alphabet);
