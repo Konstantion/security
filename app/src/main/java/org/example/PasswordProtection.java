@@ -7,13 +7,25 @@ import javax.swing.JTextField;
 import javax.swing.Timer;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.time.Duration;
 import java.util.Random;
 
 public class PasswordProtection extends JFrame {
+    private static final Random RANDOM = new Random();
+    private static final String VOWELS = "АаЕеИиІіОоУуЮюЯяЄєЇї";
+    private static final String SYMBOL_REGEX = ".*[!@#$%^&*()].*";
+    private static final String DIGIT_REGEX = ".*\\d.*";
+    private static final Duration LOCK_AFTER = Duration.ofSeconds(10);
+    /**
+     * Gui elements
+     */
     private final JTextField passwordField;
     private final JLabel messageLabel;
-    private long startTime;
+
+    private volatile long startTime = 0;
+
     private Timer lockTimer;
+
     private boolean isLocked = false;
 
     public PasswordProtection() {
@@ -41,7 +53,8 @@ public class PasswordProtection extends JFrame {
         passwordField.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (startTime == 0) {
-                    startTime = System.currentTimeMillis();
+                    startTime = System.nanoTime();
+                    System.out.println("Set startTime: " + startTime);
                 }
             }
         });
@@ -52,10 +65,12 @@ public class PasswordProtection extends JFrame {
                 return;
             }
 
-            long elapsedTime = (System.currentTimeMillis() - startTime) / 1000;
-            if (elapsedTime > 120) {
-                lockField();
-                return;
+            if (startTime != 0) {
+                Duration elapsedTime = Duration.ofNanos(System.nanoTime() - startTime);
+                if (elapsedTime.compareTo(LOCK_AFTER) > 0) {
+                    lockField();
+                    return;
+                }
             }
 
             String password = passwordField.getText();
@@ -71,27 +86,25 @@ public class PasswordProtection extends JFrame {
     }
 
     private boolean isPasswordStrong(String password) {
-        // Перевірка надійності паролю (мінімальна довжина, наявність цифр та символів)
-        if (password.length() < 8) return false;
-        if (!password.matches(".*\\d.*")) return false;
-        return password.matches(".*[!@#$%^&*()].*");
+        if (password.length() < 8) { // length
+            return false;
+        }
+        if (!password.matches(DIGIT_REGEX)) { // one digit
+            return false;
+        }
+
+        return password.matches(SYMBOL_REGEX); // one symbol
     }
 
     private String replaceVowels(String password) {
-        String vowels = "АаЕеИиІіОоУуЮюЯяЄєЇї";
         StringBuilder result = new StringBuilder();
-        Random rand = new Random();
-
         for (char c : password.toCharArray()) {
-            if (vowels.indexOf(c) != -1) {
-                // Замінюємо голосну на випадкову літеру або цифру
-                if (rand.nextBoolean()) {
-                    // Випадкова літера
-                    char randomChar = (char) (rand.nextInt(33) + 'А');
+            if (VOWELS.indexOf(c) != -1) {
+                if (RANDOM.nextBoolean()) {
+                    char randomChar = (char) (RANDOM.nextInt(33) + 'А');
                     result.append(randomChar);
                 } else {
-                    // Випадкова цифра
-                    int randomDigit = rand.nextInt(10);
+                    int randomDigit = RANDOM.nextInt(10);
                     result.append(randomDigit);
                 }
             } else {
@@ -105,10 +118,12 @@ public class PasswordProtection extends JFrame {
         isLocked = true;
         passwordField.setEnabled(false);
         messageLabel.setText("Поле заблоковано на 2 хвилини.");
-        lockTimer = new Timer(10_000, e -> {
+        lockTimer = new Timer((int) LOCK_AFTER.toMillis(), e -> {
             isLocked = false;
             passwordField.setEnabled(true);
             messageLabel.setText("Можете вводити пароль знову.");
+            startTime = System.nanoTime();
+            System.out.println("Unlock with startTime: " + startTime);
             lockTimer.stop();
         });
         lockTimer.start();
