@@ -13,34 +13,58 @@ public class AutoDeleteApplication extends JFrame {
 
   public AutoDeleteApplication() {
     setTitle("Login");
-    setSize(300, 150);
+    setSize(350, 250);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLocationRelativeTo(null);
 
-    JLabel label = new JLabel("Enter Password:");
+    JLabel titleLabel = new JLabel("Login to Application", JLabel.CENTER);
+    titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+    titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+
+    JLabel passwordLabel = new JLabel("Enter Password:");
+    passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
     JPasswordField passwordField = new JPasswordField(15);
+    passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
+
     JButton submitButton = new JButton("Submit");
-    JLabel messageLabel = new JLabel();
+    submitButton.setFont(new Font("Arial", Font.BOLD, 14));
+
+    JLabel messageLabel = new JLabel("", JLabel.CENTER);
+    messageLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+    messageLabel.setForeground(Color.RED);
+
+    JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+    inputPanel.add(passwordLabel);
+    inputPanel.add(passwordField);
+
+    JPanel buttonPanel = new JPanel();
+    buttonPanel.add(submitButton);
+
+    JPanel messagePanel = new JPanel();
+    messagePanel.add(messageLabel);
+
+    JPanel mainPanel = new JPanel();
+    mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+    mainPanel.add(titleLabel);
+    mainPanel.add(inputPanel);
+    mainPanel.add(buttonPanel);
+    mainPanel.add(messagePanel);
 
     submitButton.addActionListener(
         (ActionEvent e) -> {
           String inputPassword = new String(passwordField.getPassword());
           if (encrypt(inputPassword).equals(ENCRYPTED_PASSWORD)) {
             messageLabel.setText("Successfully logged in.");
+            messageLabel.setForeground(new Color(0, 128, 0));
           } else {
             messageLabel.setText("Incorrect password.");
+            messageLabel.setForeground(Color.RED);
             deleteSelfAndRestart();
           }
         });
 
-    JPanel panel = new JPanel();
-    panel.setLayout(new GridLayout(3, 1));
-    panel.add(label);
-    panel.add(passwordField);
-    panel.add(submitButton);
-
-    add(panel, BorderLayout.CENTER);
-    add(messageLabel, BorderLayout.SOUTH);
+    add(mainPanel);
   }
 
   private void deleteSelfAndRestart() {
@@ -75,9 +99,7 @@ public class AutoDeleteApplication extends JFrame {
 
     if (os.contains("win")) {
       runtime.exec(new String[] {"shutdown", "-r", "-t", "0"});
-    } else if (os.contains("mac")) {
-      runtime.exec(new String[] {"sudo", "shutdown", "-r", "now"});
-    } else if (os.contains("nix") || os.contains("nux")) {
+    } else if (os.contains("mac") || os.contains("nix") || os.contains("nux")) {
       runtime.exec(new String[] {"sudo", "shutdown", "-r", "now"});
     } else {
       System.out.println("Unsupported operating system for restart command.");
